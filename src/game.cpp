@@ -28,7 +28,7 @@ double duration;
 double timer;
 double endTimer;
 int score = 0;
-byte timerRunning;
+int timerRunning;
 int difficulty = 1;
 
 int activeMoles = 0;
@@ -240,8 +240,8 @@ void messageAnalyzer(String s)
 
         if (gameActive)
         {
-            Serial.println("Incoming Mole miss");
             if (score > 0)
+                Serial.println("Incoming Mole miss");
                 Serial.println("------------------------------------");
                 Serial.println("Button missed");
                 Serial.println("Difficulty decreased 1 step");
@@ -316,7 +316,6 @@ static void gameloop(void *arg)
                 cooldownTime = (double)millis() + (double)random(3000, 9000);
                 gameActive = true;
                 ////wackprintupdate();
-                
                 Serial.println("GAME STARTED\n");
             }
         }
@@ -330,42 +329,27 @@ static void gameloop(void *arg)
             ////wackprintscore(score);
             ////wackprintscore(score);
             ////wackprintlevel(difficulty);
-            if (timerRunning == 0 && button1.pressed == false && cooldownTime == 0)
-            {
+            if (timerRunning == 0 && button1.pressed == false && cooldownTime == 0){
                 digitalWrite(led, HIGH); //LED ON
                 broadcast("e0031");
                 startTime = ((double)millis() / 1000); // seconds
                 timer = millis();
                 timerRunning = 1;
             }
-            else if (cooldownTime < millis() && timerRunning == 0)
-            {
+            else if (cooldownTime < millis() && timerRunning == 0){
                 cooldownTime = 0;
                 button1.pressed = false;
             }
-            else if (timerRunning == 1)
-            {
+            else if (timerRunning == 1){
                 moleMiss();
             }
-
             if (score <= 33)
-            {
                 difficulty = 1;
-
-                // Code for 25% active nodes
-            }
             else if (score >= 34 && score <= 67)
-            {
                 difficulty = 2;
-
-                // Code for 37,5% active nodes
-            }
             else
-            {
-
                 difficulty = 3;
-                // Code for 50% active nodes
-            }
+            
         }
         vTaskDelay(pdMS_TO_TICKS(START_PERIOD));
     }

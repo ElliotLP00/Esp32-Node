@@ -48,10 +48,9 @@ void setup() {
   String str = "a";
   str += formatId();
   broadcast(str);
-  initgame();
+  
 }
 
 void loop(){
-  //gameloop();
-  vTaskDelay(pdMS_TO_TICKS(50));
+  vTaskDelay(pdMS_TO_TICKS(500));
 }
