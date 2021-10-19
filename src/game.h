@@ -11,7 +11,7 @@
 #define GAME_STACK_SIZE 2048
 #define GAME_PRIORITY 1
 #define GAME_PERIOD 50
-#define START_PERIOD 100
+#define START_PERIOD 200
 
 void initgame();
 void calculateScore();

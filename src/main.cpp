@@ -20,7 +20,8 @@ void setup() {
   initdisplay();
   displayStartText();
   Serial.begin(9600);
-  vTaskDelay(pdMS_TO_TICKS(10000));
+  initgame();
+  /*vTaskDelay(pdMS_TO_TICKS(10000));
 
   //Set device in STA mode to begin with
   WiFi.mode(WIFI_STA);
@@ -48,7 +49,7 @@ void setup() {
   String str = "a";
   str += formatId();
   broadcast(str);
-  
+  */
 }
 
 void loop(){

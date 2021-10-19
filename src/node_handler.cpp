@@ -97,10 +97,10 @@ void initArray()
   //   xTaskCreate(generateMoleTask, "generate mole", KEEPALIVE_STACK_SIZE, NULL, KEEPALIVE_PRIORITY, NULL);
   ////Serial.print("My id is ");
   ////Serial.println(id);
-  initgame();
+  
   setnodeID(id);
   displayStartText();
-  
+  initgame();
 }
 
 void formatMacAddress(const uint8_t *macAddr, char *buffer, int maxLength)

@@ -131,8 +131,8 @@ void calculateScore()
     }
     Serial.print("Score: ");
     Serial.println(score);
-    //wackprintscore(score);
-    broadcast(msg);
+    wackprintscore(score);
+    //broadcast(msg);
     digitalWrite(led, LOW); //LED OFF
     button1.pressed = false;
     //vTaskDelay(pdMS_TO_TICKS(random(2000, 5000)));
@@ -145,7 +145,7 @@ void IRAM_ATTR isr()
         if ((now - lastpush) > pushTime)
         { //Check that the button press is real (if at least 0,2 seconds has gone by since last press)
             if (gameActive)
-    {
+            {
             if (timerRunning == 1)
             { // If timer is running and button is pressed then LED turns OFF and calculateScore() is called
                 digitalWrite(led, LOW);
@@ -162,16 +162,15 @@ void IRAM_ATTR isr()
                 {
                     score -= 1;
                     Serial.println("Difficulty decreased 1 step");
-                    //wackprintscore(score);
                 }
-                broadcast(msg);
+                //broadcast(msg);
                 Serial.print("Score: ");
                 Serial.println(score);
+                wackprintscore(score);
             }
             lastpush = now;
         }
     }
-    vTaskDelay(pdMS_TO_TICKS(20));
 }
 
 void moleMiss()
@@ -189,7 +188,8 @@ void moleMiss()
         }
         Serial.print("Score: ");
         Serial.println(score);
-        //wackprintscore(score);
+        wackprintscore(score);
+        
         timer = 0;
         timerRunning = 0;
         cooldownTime = (double)millis() + (double)random(3000, 9000);
@@ -226,10 +226,10 @@ void messageAnalyzer(String s)
             Serial.println("------------------------------------");
             Serial.println("Button press time in seconds: ");
             score += data.toInt();
+            wackprintscore(score);
             activeMoles--;
             Serial.print("Score: ");
-            Serial.println(score);
-            //wackprintscore(score);
+            
         }
         else
         {
@@ -246,9 +246,10 @@ void messageAnalyzer(String s)
                 Serial.println("Button missed");
                 Serial.println("Difficulty decreased 1 step");
                 score--;
+                wackprintscore(score);
                 Serial.print("Score: ");
                 Serial.println(score);
-                //wackprintscore(score);
+                
             if (data == "1" && activeMoles > 0)
             {
                 activeMoles--;
@@ -292,7 +293,7 @@ void messageAnalyzer(String s)
 static void gameloop(void *arg)
 {
     while (1)
-    {
+    {   
         if (!gameActive)
         {
             int r = digitalRead(button1.PIN);
@@ -312,10 +313,10 @@ static void gameloop(void *arg)
                 Serial.println("Button held for 3 sec");
                 //code for sending out "gameStart" to all
                 String s = "e0060";
-                broadcast(s);
+                //broadcast(s);
+                
                 cooldownTime = (double)millis() + (double)random(3000, 9000);
                 gameActive = true;
-                ////wackprintupdate();
                 Serial.println("GAME STARTED\n");
             }
         }
@@ -325,13 +326,11 @@ static void gameloop(void *arg)
         //Level 2: 3 seconds
         //Level 3: 1 seconds
         else if(gameActive)
-        {
-            ////wackprintscore(score);
-            ////wackprintscore(score);
-            ////wackprintlevel(difficulty);
+        {   
+            
             if (timerRunning == 0 && button1.pressed == false && cooldownTime == 0){
                 digitalWrite(led, HIGH); //LED ON
-                broadcast("e0031");
+                //broadcast("e0031");
                 startTime = ((double)millis() / 1000); // seconds
                 timer = millis();
                 timerRunning = 1;
@@ -361,5 +360,6 @@ void initgame()
     pinMode(led, OUTPUT);
     attachInterrupt(button1.PIN, isr, FALLING);
     xTaskCreate(gameloop, GAME, GAME_STACK_SIZE, NULL, GAME_PRIORITY, NULL);
+    //xTaskCreate(display, GAME, GAME_STACK_SIZE, NULL, 2, NULL);
     //displayStartText();
 }

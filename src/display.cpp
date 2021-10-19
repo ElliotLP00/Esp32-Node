@@ -74,7 +74,12 @@ void setnodeID(int ID){
 
 void wackprintscore(int score){
   dscore = String(score);
+  Serial.println("printing score in wack score");
   wackprintupdate();
+}
+
+void setScore(int score){
+    dscore = String(score);
 }
 
 void wackprintlevel(int level){
