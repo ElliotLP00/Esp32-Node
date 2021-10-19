@@ -45,6 +45,24 @@ void wackprintupdate(){
   display.display(); 
 }
 
+void displayStartText(){
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    
+    display.setCursor(14, 0);
+    display.print("HELLO!");
+
+    display.setCursor(0, 11);
+    display.print("Node: ");
+    display.print(dnode);
+
+    display.setCursor(0, 24);
+    display.print("Hold for 3seconds tostart");
+    
+    display.display(); 
+}
+
 void wackprintnodeID(int ID){
   dnode = String(ID);
   wackprintupdate();

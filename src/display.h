@@ -8,4 +8,5 @@ void wackprintnodeID(int ID);
 void wackprintscore(int score);
 void wackprintlevel(int level);
 void wackprinttime(int time);
+void displayStartText();
 #endif

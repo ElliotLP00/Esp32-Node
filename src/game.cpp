@@ -199,6 +199,7 @@ void initgame(){
     pinMode (button1.PIN, INPUT_PULLUP);
     pinMode(led, OUTPUT);
     attachInterrupt(button1.PIN, isr, FALLING);
+    displayStartText();
 }
 
 void gameloop(){
@@ -207,7 +208,7 @@ void gameloop(){
     buttonPressed = true;
     buttonPressTime = millis();
     Serial.println("Button pressed");
-  } else if (r == HIGH) {
+  }else if (r == HIGH){
     buttonPressTime = 0;
     buttonPressed = false;
   }
