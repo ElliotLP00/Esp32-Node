@@ -7,6 +7,12 @@
 #include "display.h"
 #include "game.h"
 
+#define GAME "game task"
+#define GAME_STACK_SIZE 2048
+#define GAME_PRIORITY 1
+#define GAME_PERIOD 50
+#define START_PERIOD 100
+
 void initgame();
 void calculateScore();
 void IRAM_ATTR isr();

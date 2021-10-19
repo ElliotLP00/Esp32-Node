@@ -68,6 +68,10 @@ void wackprintnodeID(int ID){
   wackprintupdate();
 }
 
+void setnodeID(int ID){
+    dnode = String(ID);
+}
+
 void wackprintscore(int score){
   dscore = String(score);
   wackprintupdate();
