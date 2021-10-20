@@ -56,7 +56,8 @@ void calculateScore()
     ////Serial.println("------------------------------------");
     //Serial.print("Button press time in seconds: ");
     ////Serial.println(duration);
-    String msg = "e00";
+    String msg = "e";
+    msg +=id;
     switch (difficulty)
     {
     case 1: //Difficulty level 1
@@ -167,7 +168,9 @@ void IRAM_ATTR isr()
             }
             else
             {
-                String msg = "e0050";
+                String msg = "e";
+                msg +=id;
+                msg +="50";
                 //////Serial.println("------------------------------------");
                 //////Serial.println("Button missed");
                 if (score >= 1)
@@ -192,7 +195,9 @@ void moleMiss()
         digitalWrite(led, LOW);
         ////Serial.println("------------------------------------");
         ////Serial.println("Button missed");
-        String msg = "e0051";
+        String msg = "e";
+        msg +=id;
+        msg +=51;
         if (score >= 1)
         {
             setScore(-1);
@@ -330,8 +335,10 @@ static void gameloop(void *arg)
             {
                 ////Serial.println("Button held for 3 sec");
                 //code for sending out "gameStart" to all
-                String s = "e0060";
-                broadcast(s);
+                String msg = "e";
+                msg +=id;
+                msg +="60";
+                broadcast(msg);
                 wackprintupdate();
                 //cooldownTime = (double)millis() + (double)random(connectednodes*200, connectednodes*4000);
                 cooldownTime = (double)millis() + (double)random(3000, 9000);
@@ -349,7 +356,10 @@ static void gameloop(void *arg)
             
             if (timerRunning == 0 && button1.pressed == false && cooldownTime == 0 /*&& activeMoles<2*/){
                 digitalWrite(led, HIGH); //LED ON
-                broadcast("e0031");
+                String msg = "e";
+                msg +=id;
+                msg +="31";
+                broadcast("e");
                 startTime = ((double)millis() / 1000); // seconds
                 timer = millis();
                 timerRunning = 1;
