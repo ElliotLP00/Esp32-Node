@@ -41,7 +41,7 @@ SemaphoreHandle_t xmutex2 = NULL;
 
 void setScore(int i){
     xSemaphoreTake(xmutex2,portMAX_DELAY);
-    score += i*10;
+    score += i;
     //Serial.print("Score: ");
     ////Serial.println(score);
     xSemaphoreGive(xmutex2);
@@ -57,7 +57,7 @@ void calculateScore()
     //Serial.print("Button press time in seconds: ");
     ////Serial.println(duration);
     String msg = "e";
-    msg +=id;
+    msg +=formatId();
     switch (difficulty)
     {
     case 1: //Difficulty level 1
@@ -169,7 +169,7 @@ void IRAM_ATTR isr()
             else
             {
                 String msg = "e";
-                msg +=id;
+                msg +=formatId();
                 msg +="50";
                 //////Serial.println("------------------------------------");
                 //////Serial.println("Button missed");
@@ -196,7 +196,7 @@ void moleMiss()
         ////Serial.println("------------------------------------");
         ////Serial.println("Button missed");
         String msg = "e";
-        msg +=id;
+        msg +=formatId();
         msg +=51;
         if (score >= 1)
         {
@@ -337,7 +337,7 @@ static void gameloop(void *arg)
                 ////Serial.println("Button held for 3 sec");
                 //code for sending out "gameStart" to all
                 String msg = "e";
-                msg +=id;
+                msg +=formatId();
                 msg +="60";
                 broadcast(msg);
                 wackprintupdate();
@@ -358,7 +358,7 @@ static void gameloop(void *arg)
             if (timerRunning == 0 && button1.pressed == false && cooldownTime == 0 /*&& activeMoles<2*/){
                 digitalWrite(led, HIGH); //LED ON
                 String msg = "e";
-                msg +=id;
+                msg +=formatId();
                 msg +="31";
                 broadcast("e");
                 startTime = ((double)millis() / 1000); // seconds
