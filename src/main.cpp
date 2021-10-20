@@ -20,9 +20,8 @@ void setup() {
   initdisplay();
   displayStartText();
   Serial.begin(9600);
-  initgame();
-  /*vTaskDelay(pdMS_TO_TICKS(10000));
-
+  
+vTaskDelay(pdMS_TO_TICKS(10000));
   //Set device in STA mode to begin with
   WiFi.mode(WIFI_STA);
   Serial.println("ESPNow Example");
@@ -45,11 +44,12 @@ void setup() {
     delay(3000);
     ESP.restart();
   }
-  initArray();
+  initNodeHandler();
   String str = "a";
   str += formatId();
   broadcast(str);
-  */
+  initgame();
+  
 }
 
 void loop(){

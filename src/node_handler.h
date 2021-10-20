@@ -18,9 +18,17 @@ typedef struct node_struct
   uint8_t macAdress[6];
 } node_struct;
 
+typedef struct message_struct
+{
+  String message; 
+  uint8_t macAdress[6];
+}message_struct;
+
+
+
 int generateID();
 
-void initArray();
+void initNodeHandler();
 
 void addPeer(node_struct);
 
@@ -59,8 +67,7 @@ void printMacAddress(const uint8_t *macAddr);
 
 String formatId();
 
-void printList();
-boolean checkIfLast();
+void calculateNumberOfNodes();
 
 
 #endif

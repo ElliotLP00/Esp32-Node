@@ -12,12 +12,14 @@
 #define GAME_PRIORITY 1
 #define GAME_PERIOD 50
 #define START_PERIOD 200
-
+void setscore(int i);
 void initgame();
 void calculateScore();
 void IRAM_ATTR isr();
 void moleMiss();
 void messageAnalyzer(String s);
+
 void initgame();
 void gameloop();
+
 #endif

@@ -11,11 +11,12 @@ int clientMessage()
      
      int id= 0; 
     const uint16_t port = 5008;
-    const char * host = "192.168.0.3"; // ip or dns
+    const char * host = "192.168.43.241"; // ip or dns
 
     WiFiClient client;
 
-    wifiMulti.addAP("COMHEM_6ecb62", "gdnzctmi");
+    //wifiMulti.addAP("COMHEM_6ecb62", "gdnzctmi");
+    wifiMulti.addAP("Elliot's telefon", "123456789Aa");
 
     Serial.println();
     Serial.println();

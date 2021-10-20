@@ -37,6 +37,15 @@ int gameActive = false;
 double cooldownTime = 0;
 int buttonPressed = false;
 double buttonPressTime = 0;
+SemaphoreHandle_t xmutex = NULL;
+
+void setscore(int i){
+    xSemaphoreTake(xmutex,portMAX_DELAY);
+    score += i;
+    Serial.print("Score: ");
+    Serial.println(score);
+    xSemaphoreGive(xmutex);
+}
 
 //Calculate the score depending on the current difficulty level and time between LED ON and button press
 void calculateScore()
@@ -54,25 +63,25 @@ void calculateScore()
         if (duration <= 1.6)
         {
             Serial.println("Difficulty increased 3 steps");
-            score += 3;
+            setScore(3);
             msg += "43";
         }
         else if (duration > 1.6 && duration <= 3)
         {
             Serial.println("Difficulty increased 2 steps");
-            score += 2;
+            setScore(2);
             msg += "42";
         }
         else if (duration > 3 && duration <= 5)
         {
             Serial.println("Difficulty increased 1 step");
-            score += 1;
+            setScore(1);
             msg += "41";
         }
         else if (duration > 5 && score >= 1)
         {
             Serial.println("Difficulty decreased 1 step");
-            score -= 1;
+            setScore(-1);
             msg += "50";
         }
         break;
@@ -80,25 +89,25 @@ void calculateScore()
         if (duration <= 1)
         {
             Serial.println("Difficulty increased 3 steps");
-            score += 3;
+            setScore(3);
             msg += "43";
         }
         else if (duration == 2)
         {
             Serial.println("Difficulty increased 2 steps");
-            score += 2;
+            setScore(2);
             msg += "42";
         }
         else if (duration == 3)
         {
             Serial.println("Difficulty increased 1 step");
-            score += 1;
+            setScore(1);
             msg += "41";
         }
         else if (duration > 3 && score >= 1)
         {
             Serial.println("Difficulty decreased 1 step");
-            score -= 1;
+            setScore(-1);
             msg += "50";
         }
         break;
@@ -106,36 +115,38 @@ void calculateScore()
         if (duration <= 0.25)
         {
             Serial.println("Difficulty increased 3 steps");
-            score += 3;
+            setScore(3);
             msg += "43";
         }
         else if (duration == 0.5)
         {
             Serial.println("Difficulty increased 2 steps");
-            score += 2;
+            setScore(2);
             msg += "42";
         }
         else if (duration == 1)
         {
             Serial.println("Difficulty increased 1 step");
-            score += 1;
+            setScore(1);
             msg += "41";
         }
         else if (duration > 1 && score >= 1)
         {
             Serial.println("Difficulty decreased 1 step");
-            score -= 1;
+            setScore(-1);
             msg += "50";
         }
         break;
     }
+    /*
     Serial.print("Score: ");
-    Serial.println(score);
-    wackprintscore(score);
-    //broadcast(msg);
+    Serial.println(score);*/
+    //wackprintscore(score);
+    broadcast(msg);
+    //cooldownTime = (double)millis() + (double)random(connectednodes*200, connectednodes*1000);
+    cooldownTime = (double)millis() + (double)random(3000, 9000);
     digitalWrite(led, LOW); //LED OFF
     button1.pressed = false;
-    //vTaskDelay(pdMS_TO_TICKS(random(2000, 5000)));
 }
 //Button press
 void IRAM_ATTR isr()
@@ -151,7 +162,8 @@ void IRAM_ATTR isr()
                 digitalWrite(led, LOW);
                 calculateScore();
                 button1.pressed = true;
-                cooldownTime = (double)millis() + (double)random(3000, 9000);
+                //cooldownTime = (double)millis() + (double)random(connectednodes*200, connectednodes*4000);
+                //cooldownTime = (double)millis() + (double)random(3000, 9000);
             }
             else
             {
@@ -160,13 +172,13 @@ void IRAM_ATTR isr()
                 Serial.println("Button missed");
                 if (score >= 1)
                 {
-                    score -= 1;
+                    setScore(-1);
                     Serial.println("Difficulty decreased 1 step");
                 }
-                //broadcast(msg);
+                broadcast(msg);
                 Serial.print("Score: ");
                 Serial.println(score);
-                wackprintscore(score);
+                ////wackprintscore(score);
             }
             lastpush = now;
         }
@@ -183,15 +195,16 @@ void moleMiss()
         String msg = "e0051";
         if (score >= 1)
         {
-            score -= 1;
+            setScore(-1);
             Serial.println("Difficulty decreased 1 step");
         }
-        Serial.print("Score: ");
-        Serial.println(score);
-        wackprintscore(score);
+        //Serial.print("Score: ");
+        //Serial.println(score);
+        //wackprintscore(score);
         
         timer = 0;
         timerRunning = 0;
+        //
         cooldownTime = (double)millis() + (double)random(3000, 9000);
     }
 }
@@ -209,7 +222,7 @@ void messageAnalyzer(String s)
     switch (type)
     {
     case 3:
-        if (activeMoles < 4 && gameActive)
+        if (activeMoles < 2 && gameActive)
         {
             Serial.println("Incoming Mole active");
             activeMoles++;
@@ -226,7 +239,7 @@ void messageAnalyzer(String s)
             Serial.println("------------------------------------");
             Serial.println("Button press time in seconds: ");
             score += data.toInt();
-            wackprintscore(score);
+            //wackprintscore(score);
             activeMoles--;
             Serial.print("Score: ");
             
@@ -246,7 +259,7 @@ void messageAnalyzer(String s)
                 Serial.println("Button missed");
                 Serial.println("Difficulty decreased 1 step");
                 score--;
-                wackprintscore(score);
+                //wackprintscore(score);
                 Serial.print("Score: ");
                 Serial.println(score);
                 
@@ -270,6 +283,7 @@ void messageAnalyzer(String s)
             Serial.println("Incoming Start game");
             activeMoles = 0;
             gameActive = true;
+            wackprintupdate();
         }
         else
         {
@@ -289,6 +303,8 @@ void messageAnalyzer(String s)
         break;
     }
 }
+
+
 
 static void gameloop(void *arg)
 {
@@ -313,8 +329,9 @@ static void gameloop(void *arg)
                 Serial.println("Button held for 3 sec");
                 //code for sending out "gameStart" to all
                 String s = "e0060";
-                //broadcast(s);
-                
+                broadcast(s);
+                wackprintupdate();
+                //cooldownTime = (double)millis() + (double)random(connectednodes*200, connectednodes*4000);
                 cooldownTime = (double)millis() + (double)random(3000, 9000);
                 gameActive = true;
                 Serial.println("GAME STARTED\n");
@@ -328,9 +345,9 @@ static void gameloop(void *arg)
         else if(gameActive)
         {   
             
-            if (timerRunning == 0 && button1.pressed == false && cooldownTime == 0){
+            if (timerRunning == 0 && button1.pressed == false && cooldownTime == 0 && activeMoles<2){
                 digitalWrite(led, HIGH); //LED ON
-                //broadcast("e0031");
+                broadcast("e0031");
                 startTime = ((double)millis() / 1000); // seconds
                 timer = millis();
                 timerRunning = 1;
@@ -356,10 +373,14 @@ static void gameloop(void *arg)
 
 void initgame()
 {
+    xmutex= xSemaphoreCreateMutex();
     pinMode(button1.PIN, INPUT_PULLUP);
     pinMode(led, OUTPUT);
     attachInterrupt(button1.PIN, isr, FALLING);
-    xTaskCreate(gameloop, GAME, GAME_STACK_SIZE, NULL, GAME_PRIORITY, NULL);
+    if(xmutex!=NULL)
+    {
+        xTaskCreate(gameloop, GAME, GAME_STACK_SIZE, NULL, GAME_PRIORITY, NULL);
+    }
     //xTaskCreate(display, GAME, GAME_STACK_SIZE, NULL, 2, NULL);
     //displayStartText();
 }
