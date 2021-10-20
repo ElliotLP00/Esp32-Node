@@ -78,10 +78,6 @@ void wackprintscore(int score){
   wackprintupdate();
 }
 
-void setScore(int score){
-    dscore = String(score);
-}
-
 void wackprintlevel(int level){
   dlevel = String(level);
   wackprintupdate();

@@ -115,7 +115,7 @@ static void readMessageTask(void *arg)
       messages[i]=messages[i+1];
     }
     myIndex--;
-    xSemaphoreGive(xmutex);
+    
 
     Serial.print("From New TASK ");
     Serial.println(temp);
@@ -200,9 +200,10 @@ static void readMessageTask(void *arg)
     hasSentKeepAlive = false;
     boolConfirmedNode = true;
   }
+  xSemaphoreGive(xmutex);
     }
 
-    vTaskDelay(pdMS_TO_TICKS(10)); 
+    vTaskDelay(pdMS_TO_TICKS(100)); 
   }
 }
 
