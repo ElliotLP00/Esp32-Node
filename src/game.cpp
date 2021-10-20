@@ -41,7 +41,7 @@ SemaphoreHandle_t xmutex2 = NULL;
 
 void setScore(int i){
     xSemaphoreTake(xmutex2,portMAX_DELAY);
-    score += i;
+    score += i*10;
     //Serial.print("Score: ");
     ////Serial.println(score);
     xSemaphoreGive(xmutex2);
@@ -319,6 +319,7 @@ static void gameloop(void *arg)
     {   
         if (!gameActive)
         {
+            
             int r = digitalRead(button1.PIN);
             if (r == LOW && !buttonPressed)
             {
@@ -353,7 +354,7 @@ static void gameloop(void *arg)
         //Level 3: 1 seconds
         else if(gameActive)
         {   
-            
+
             if (timerRunning == 0 && button1.pressed == false && cooldownTime == 0 /*&& activeMoles<2*/){
                 digitalWrite(led, HIGH); //LED ON
                 String msg = "e";
