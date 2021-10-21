@@ -18,7 +18,8 @@ String dtime = "-";
 
 void initdisplay(){
     Wire.begin(I2C_SDA, I2C_SCL);
-    display.begin(SSD1306_SWITCHCAPVCC, 0x3C); 
+    display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+
 }
 
 void wackprintupdate(){
@@ -74,7 +75,6 @@ void setnodeID(int ID){
 
 void wackprintscore(int score){
   dscore = String(score);
-  Serial.println("printing score in wack score");
   wackprintupdate();
 }
 

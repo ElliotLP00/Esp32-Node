@@ -7,9 +7,9 @@
 #define KEEPALIVE "KeepAlive task"
 #define KEEPALIVE_STACK_SIZE 2048
 #define KEEPALIVE_PRIORITY 6
-#define KEEPALIVE_PERIOD 1000
+#define KEEPALIVE_PERIOD 500
 
-
+extern int connected_nodes;
 extern int id; 
 
 typedef struct node_struct
@@ -69,5 +69,5 @@ String formatId();
 
 void calculateNumberOfNodes();
 
-
+boolean checkIfLast();
 #endif

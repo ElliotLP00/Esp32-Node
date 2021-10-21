@@ -164,7 +164,7 @@ void IRAM_ATTR isr()
                 calculateScore();
                 button1.pressed = true;
                 //cooldownTime = (double)millis() + (double)random(connectednodes*200, connectednodes*4000);
-                //cooldownTime = (double)millis() + (double)random(3000, 9000);
+                cooldownTime = (double)millis() + (double)random(3000, 9000);
             }
             else
             {
@@ -209,7 +209,7 @@ void moleMiss()
         
         timer = 0;
         timerRunning = 0;
-        //
+        broadcast(msg);
         cooldownTime = (double)millis() + (double)random(3000, 9000);
     }
 }
@@ -240,12 +240,12 @@ void messageAnalyzer(String s)
         break;
     case 4:
     
-        if (activeMoles > 0 && gameActive)
+        if (/*activeMoles > 0 && */gameActive)
         {
             ////Serial.println("Incoming Mole hit.");
             ////Serial.println("------------------------------------");
             ////Serial.println("Button press time in seconds: ");
-            score += data.toInt();
+            setScore(data.toInt());
             //wackprintscore(score);
             //activeMoles--;
             //Serial.print("Score: ");
@@ -265,7 +265,7 @@ void messageAnalyzer(String s)
                 ////Serial.println("------------------------------------");
                 ////Serial.println("Button missed");
                 ////Serial.println("Difficulty decreased 1 step");
-                score--;
+                setScore(-1);
                 //wackprintscore(score);
                 //Serial.print("Score: ");
                 ////Serial.println(score);
@@ -354,13 +354,13 @@ static void gameloop(void *arg)
         //Level 3: 1 seconds
         else if(gameActive)
         {   
-
+            Serial.println(score);
             if (timerRunning == 0 && button1.pressed == false && cooldownTime == 0 /*&& activeMoles<2*/){
                 digitalWrite(led, HIGH); //LED ON
                 String msg = "e";
                 msg +=formatId();
                 msg +="31";
-                broadcast("e");
+                broadcast(msg);
                 startTime = ((double)millis() / 1000); // seconds
                 timer = millis();
                 timerRunning = 1;

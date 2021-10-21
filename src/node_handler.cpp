@@ -17,7 +17,7 @@ node_struct neighbor;
 boolean hasSentKeepAlive = false;
 uint64_t timeLastMessage;
 node_struct nodes[16];
-message_struct messages[20];
+message_struct messages[50];
 boolean boolConfirmedNode;
 SemaphoreHandle_t xmutex = NULL;
 
@@ -33,10 +33,10 @@ static void keepAliveCheckTask(void *arg)
       uint64_t timeDiff = now - timeLastMessage;
       timeDiff /= 1000;
 
-      if (timeDiff > 5000 && timeDiff < 10000 && hasSentKeepAlive == false)
+      if (timeDiff > 2000 && timeDiff < 4000 && hasSentKeepAlive == false)
       {
-        Serial.println();
-        Serial.println("Time since last neighbor message is > 5s");
+        //Serial.println();
+        //Serial.println("Time since last neighbor message is > 5s");
         // Skicka keepalive-meddelande
         String str = "c";
         str += formatId();
@@ -45,10 +45,10 @@ static void keepAliveCheckTask(void *arg)
         Serial.println(neighbor.id);
         hasSentKeepAlive = true; // Ska sättas till false igen antingen när svar från nod inkommer eller när den tas bort som granne.
       }
-      else if (timeDiff >= 10000 && boolConfirmedNode == true)
+      else if (timeDiff >= 4000 && boolConfirmedNode == true)
       {
-        Serial.println();
-        Serial.println("Time since last neighbor message is > 10s");
+        //Serial.println();
+        //Serial.println("Time since last neighbor message is > 10s");
         boolConfirmedNode = false;
         String str = "c";
         str += formatId();
@@ -64,11 +64,16 @@ static void keepAliveCheckTask(void *arg)
       }
       else if (timeDiff > 1000 && boolConfirmedNode == false)
       {
+        int oldNeighborId = neighbor.id;
         handleDisconnect(neighbor);
         findNewNeighbor();
         String str = "c";
         str += formatId();
         sendMessage(str, neighbor);
+        str = "f";
+        str += formatId();
+        str += oldNeighborId;
+       // broadcast(str);
       }
     }
     vTaskDelay(pdMS_TO_TICKS(KEEPALIVE_PERIOD));
@@ -94,7 +99,7 @@ static void readMessageTask(void *arg)
 {
   while (1)
   {
-    if(myIndex != 0)
+    if(myIndex > 0)
     { xSemaphoreTake(xmutex,portMAX_DELAY);
       node_struct node;
 
@@ -110,24 +115,26 @@ static void readMessageTask(void *arg)
 
     node.id = senderId.toInt();
 
-    for(int i=0; i<19; i++)
+    for(int i=0; i<49; i++)
     {
       messages[i]=messages[i+1];
     }
     myIndex--;
+
     xSemaphoreGive(xmutex);
 
-    Serial.print("From New TASK ");
-    Serial.println(temp);
+    //Serial.print("From New TASK ");
+    //Serial.println(myIndex);
+    //Serial.println(temp);
      if (msgType == "a") // New node broadcast: alla noder lägger till den nya noden till sin array.
   {
 
     if (!addToList(node))
     {
-      Serial.println("failed to add node to node list in messagetype a");
+      //Serial.println("failed to add node to node list in messagetype a");
     }
     calculateNumberOfNodes();
-    Serial.printf("connectednodes: %d\n", connected_nodes);
+    //Serial.printf("connectednodes: %d\n", connected_nodes);
     if (lastNode == true) // Den som är nästsist får den ny tillagda nodes som granne.
     {
       addNeighbor(node);
@@ -144,7 +151,7 @@ static void readMessageTask(void *arg)
     calculateNumberOfNodes();
     if (!addToList(node))
     {
-      Serial.println("failed to add node to node list in messagetype b");
+      //Serial.println("failed to add node to node list in messagetype b");
     }
     uint8_t tempId = 0;
     uint8_t lowId = 255;
@@ -159,25 +166,25 @@ static void readMessageTask(void *arg)
     }
 
     int index = getNodeIndexFromList(lowId);
-    Serial.println(nodes[index].id);
+    //Serial.println(nodes[index].id);
     addNeighbor(nodes[index]);
     addPeer(node);
   }
   else if (msgType == "c") // Keep alive mottaget
   {
-    Serial.println("keep alive message received");
+    //Serial.println("keep alive message received");
     String reply = "d";
     reply += formatId();
     sendMessage(reply, node.id);
   }
   else if (msgType == "d") // Ack
   {
-    Serial.println("ack received");
+    //Serial.println("ack received");
   }
   else if (msgType == "e") // Mole
   {
-    Serial.print("received mole message from ");
-    Serial.println(node.id);
+    //Serial.print("received mole message from ");
+    //Serial.println(node.id);
     messageAnalyzer(dataContent);
   }
   else if (msgType == "f")
@@ -187,11 +194,11 @@ static void readMessageTask(void *arg)
     int j = getNodeIndexFromList(i);
     node_struct n = nodes[j];
     handleDisconnect(n);
-    Serial.printf("received dc node message from %d, dc node is %d\n", node.id, i);
+    //Serial.printf("received dc node message from %d, dc node is %d\n", node.id, i);
   }
   else
   {
-    Serial.println("Message type is not recognised as valid");
+    //Serial.println("Message type is not recognised as valid");
   }
 
   if (neighbor.id == node.id) // Om sändaren är ens granne, spara tiden för meddelandet.
@@ -222,8 +229,8 @@ void initNodeHandler()
   {
     xTaskCreate(readMessageTask, "read message", KEEPALIVE_STACK_SIZE, NULL, 9, NULL);
   }
-  Serial.print("My id is ");
-  Serial.println(id);
+  //Serial.print("My id is ");
+  //Serial.println(id);
   setnodeID(id);
   displayStartText();
 }
@@ -242,8 +249,8 @@ void addPeer(node_struct node)
   if (temp != ESP_OK)
   {
 
-    Serial.println(esp_err_to_name(temp));
-    Serial.println("Failed to add peer");
+    //Serial.println(esp_err_to_name(temp));
+    //Serial.println("Failed to add peer");
     return;
   }
 }
@@ -252,38 +259,38 @@ void sendMessage(const String &message, node_struct node)
 {
 
   //  This will send a message to a specific device
-  //    Serial.print("In send message. receiver id is ");
-  //    Serial.println(node.id);
+  //    //Serial.print("In send message. receiver id is ");
+  //    //Serial.println(node.id);
 
   esp_err_t result = esp_now_send(node.macAdress, (const uint8_t *)message.c_str(), message.length());
 
   if (result == ESP_OK)
   {
-    //   Serial.println("Personal message success");
+    //   //Serial.println("Personal message success");
   }
   else if (result == ESP_ERR_ESPNOW_NOT_INIT)
   {
-    Serial.println("ESPNOW not Init.");
+    //Serial.println("ESPNOW not Init.");
   }
   else if (result == ESP_ERR_ESPNOW_ARG)
   {
-    Serial.println("Invalid Argument");
+    //Serial.println("Invalid Argument");
   }
   else if (result == ESP_ERR_ESPNOW_INTERNAL)
   {
-    Serial.println("Internal Error");
+    //Serial.println("Internal Error");
   }
   else if (result == ESP_ERR_ESPNOW_NO_MEM)
   {
-    Serial.println("ESP_ERR_ESPNOW_NO_MEM");
+    //Serial.println("ESP_ERR_ESPNOW_NO_MEM");
   }
   else if (result == ESP_ERR_ESPNOW_NOT_FOUND)
   {
-    Serial.println("Peer not found.");
+    //Serial.println("Peer not found.");
   }
   else
   {
-    Serial.println("Unknown error");
+    //Serial.println("Unknown error");
   }
 }
 
@@ -300,7 +307,7 @@ void receiveCallback(const uint8_t *macAddr, const uint8_t *data, int dataLen)
   char macStr[18];
   formatMacAddress(macAddr, macStr, 18);
   // debug log the message to the serial port
-  Serial.printf("Received message from: %s - %s\n", macStr, buffer);
+  //Serial.printf("Received message from: %s - %s\n", macStr, buffer);
 
   messages[myIndex].message = buffer;
 
@@ -322,18 +329,18 @@ void sentCallback(const uint8_t *macAddr, esp_now_send_status_t status)
 {
   char macStr[18];
   formatMacAddress(macAddr, macStr, 18);
-//  Serial.print("Last Packet Sent to: ");
- // Serial.println(macStr);
-//  Serial.print("Last Packet Send Status: ");
- // Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+//  //Serial.print("Last Packet Sent to: ");
+ // //Serial.println(macStr);
+//  //Serial.print("Last Packet Send Status: ");
+ // //Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
 
 void printMacAddress(const uint8_t *macAddr)
 {
   char macStr[18];
   formatMacAddress(macAddr, macStr, 18);
-  Serial.print("MAC address: ");
-  Serial.println(macStr);
+  //Serial.print("MAC address: ");
+  //Serial.println(macStr);
 }
 
 void broadcast(const String &message)
@@ -361,31 +368,31 @@ void broadcast(const String &message)
   esp_err_t result = esp_now_send(peerAddress, (const uint8_t *)message.c_str(), message.length());*/
   if (result == ESP_OK)
   {
-    //   Serial.println("Broadcast message success");
+    //   //Serial.println("Broadcast message success");
   }
   else if (result == ESP_ERR_ESPNOW_NOT_INIT)
   {
-    Serial.println("ESPNOW not Init.");
+    //Serial.println("ESPNOW not Init.");
   }
   else if (result == ESP_ERR_ESPNOW_ARG)
   {
-    Serial.println("Invalid Argument");
+    //Serial.println("Invalid Argument");
   }
   else if (result == ESP_ERR_ESPNOW_INTERNAL)
   {
-    Serial.println("Internal Error");
+    //Serial.println("Internal Error");
   }
   else if (result == ESP_ERR_ESPNOW_NO_MEM)
   {
-    Serial.println("ESP_ERR_ESPNOW_NO_MEM");
+    //Serial.println("ESP_ERR_ESPNOW_NO_MEM");
   }
   else if (result == ESP_ERR_ESPNOW_NOT_FOUND)
   {
-    Serial.println("Peer not found.");
+    //Serial.println("Peer not found.");
   }
   else
   {
-    Serial.println("Unknown error");
+    //Serial.println("Unknown error");
   }
 }
 
@@ -407,12 +414,12 @@ void addNeighbor(node_struct node)
     neighbor.macAdress[j] = node.macAdress[j];
   }
   neighbor.id = node.id;
-  Serial.printf("New neighbor is %d\n", node.id);
+  //Serial.printf("New neighbor is %d\n", node.id);
 }
 
 void findNewNeighbor()
 {
-  Serial.println("finding new neighbor");
+  //Serial.println("finding new neighbor");
   uint8_t newNeighborId = 255;
   uint8_t lowID = 255;
 
@@ -441,11 +448,11 @@ void findNewNeighbor()
 void handleDisconnect(node_struct node)
 {
   calculateNumberOfNodes();
-  Serial.printf("connectednodes: %d\n", connected_nodes);
+  //Serial.printf("connectednodes: %d\n", connected_nodes);
   removeNodeFromList(node);
   if (esp_now_del_peer(node.macAdress) != ESP_OK)
   {
-    Serial.println("Peer has not been successfully removed from peer list");
+    //Serial.println("Peer has not been successfully removed from peer list");
   }
 }
 
@@ -523,4 +530,24 @@ void calculateNumberOfNodes()
   }
   connected_nodes =tempNodesConnected + 1;
 }
+/*
+boolean checkIfLast(){
 
+    uint8_t highestID = 0;
+    for (node_struct node : nodes)
+    {
+      if (node.id > highestID)
+      {
+        highestID = node.id;
+      }
+      
+    }
+    if (id > highestID)
+    { 
+      return true;
+    }
+    else 
+      return false;
+    
+  }
+*/

@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": ".."
+		},
+		{
+			"path": "../../../Downloads/Nodkod - fungerande utan connect i game/src"
 		}
 	],
 	"settings": {
